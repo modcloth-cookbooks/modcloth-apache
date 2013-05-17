@@ -1,0 +1,62 @@
+ServerRoot "/opt/local"
+
+Listen <%= node[:privateaddress] %>:80
+
+Include etc/httpd/modules.conf
+
+User <%= node[:apache][:user] %>
+Group <%= node[:apache][:group] %>
+
+ServerAdmin platformsphere@modcloth.com
+
+ServerName <%= node[:hostname] %>
+
+DocumentRoot "/opt/local/share/httpd/htdocs"
+
+ScriptAlias /cgi-bin/ "/opt/local/libexec/cgi-bin/"
+
+<Directory />
+    Options Indexes FollowSymLinks
+    AllowOverride All
+    Order allow,deny
+    Allow from all
+</Directory>
+
+<Directory "/opt/local/share/httpd/htdocs">
+    Options Indexes FollowSymLinks
+    AllowOverride All
+    Order allow,deny
+    Allow from all
+</Directory>
+
+<Directory "/opt/local/libexec/cgi-bin">
+    SetEnv TZ "US/Pacific"
+    Options None
+    AllowOverride All
+    Order allow,deny
+    Allow from all
+    Options ExecCGI
+</Directory>
+
+DirectoryIndex index.html index.php
+
+<FilesMatch "^\.ht">
+    Order allow,deny
+    Deny from all
+    Satisfy All
+</FilesMatch>
+
+ErrorLog "/var/log/httpd/error.log"
+LogLevel warn
+
+LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
+CustomLog "/var/log/httpd/access.log" combined
+
+TypesConfig etc/httpd/mime.types
+AddHandler cgi-script .cgi
+AddType application/x-compress .Z
+AddType application/x-gzip .gz .tgz
+AddType application/x-httpd-php .php
+
+Include etc/httpd/virtual/*.conf
+
